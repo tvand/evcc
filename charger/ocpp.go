@@ -254,6 +254,21 @@ func NewOCPP(id string, connector int, idtag string,
 
 	// get initial meter values and configure sample rate
 	if c.hasMeasurement(types.MeasurandPowerActiveImport) || c.hasMeasurement(types.MeasurandEnergyActiveImportRegister) {
+		// Initialize total energy
+		conn.MeterValues(&core.MeterValuesRequest{
+			ConnectorId: conn.ID(),
+			MeterValue: []types.MeterValue{
+				{
+					Timestamp: types.NewDateTime(time.Now()),
+					SampledValue: []types.SampledValue{
+						{
+							Measurand: types.MeasurandEnergyActiveImportRegister,
+							Value:     "0",
+						},
+					},
+				},
+			},
+		})
 		conn.TriggerMessageRequest(core.MeterValuesFeatureName)
 
 		if meterInterval > 0 && meterInterval != meterSampleInterval {
